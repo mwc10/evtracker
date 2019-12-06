@@ -78,7 +78,7 @@ update msg model =
     SetEvTarget stat val ->
       { model | targetEvs = (update_target_ev model.targetEvs stat val) }
     ResetEarnedEvs ->
-      { model | earnedEvs = zero_statset }
+      { model | earnedEvs = zero_statset, pkmnList = reset_all_kos model.pkmnList }
     ResetTargetEvs ->
       { model | targetEvs = zero_statset }
     StartAddingNewPkmn -> 
@@ -91,6 +91,10 @@ update msg model =
       add_new_pkmn model
     KilledPkmn id -> 
       add_new_ko model id
+
+reset_all_kos : List PKMN -> List PKMN
+reset_all_kos pkmns =
+  List.map (\p -> {p | count = 0}) pkmns
 
 add_new_ko : Model -> Int -> Model
 add_new_ko model id =
@@ -235,7 +239,7 @@ pkmn_to_li calc_remaining pkmn =
   let
     name = Maybe.withDefault "" pkmn.name
     yield = "+" ++ String.fromInt pkmn.yield ++ " " ++ stat_to_str pkmn.stat
-    count = "killed " ++ String.fromInt pkmn.count
+    count = "KOed " ++ String.fromInt pkmn.count
     left = p_remaining_evs <| calc_remaining pkmn
   in
   li [onClick (KilledPkmn pkmn.id)] 
