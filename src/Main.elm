@@ -1,5 +1,6 @@
 module Main exposing (..)
 import Browser
+import Dict exposing (Dict)
 import Html exposing (div, select, option, text, p, label, h2, input, button, form, li, ul)
 import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
@@ -35,7 +36,6 @@ type alias PKMN =
   , name : Maybe String
   , stat : Stat
   , count : Int
-  , left : Int
   , status : PkmnStatus
   }
 -- TODO: model multiple stat ev yield pokmeon (up to three stats)
@@ -96,11 +96,13 @@ add_new_ko : Model -> Int -> Model
 add_new_ko model id =
   let
     add_koes_with_item = add_koed_evs model.item
+
+    newEarned = model.pkmnList
+      |> List.filter (\p -> p.id == id)
+      |> List.foldl add_koes_with_item model.earnedEvs
+
     updatedPkmnList = model.pkmnList
       |> List.map (add_pkmn_ko_count id)
-    newEarned = updatedPkmnList
-      |> List.filter (\p -> p.id == id)
-      |> List.foldl add_koes_with_item model.earnedEvs 
   in
   {model | pkmnList = updatedPkmnList, earnedEvs = newEarned}
 
@@ -150,7 +152,8 @@ add_new_pkmn model =
     Nothing -> model
 
 newpkmn_to_pkmn : NewPkmn -> Int -> PKMN
-newpkmn_to_pkmn new id = PKMN id new.yield new.name new.stat 0 0 SetPkmn
+newpkmn_to_pkmn new id  =
+  PKMN id new.yield new.name new.stat 0 SetPkmn
 
 update_new_pkmn : NewPkmnMsg -> Maybe NewPkmn -> Maybe NewPkmn
 update_new_pkmn msg pkmn =
@@ -209,28 +212,73 @@ view model =
 -- View => Wild Pokemon List --
 wild_pkmn : Model -> Html.Html Msg
 wild_pkmn model =
+  let 
+    partial_get_remaning = get_remaining model
+  in
   div [A.id "WildPkmn"] 
   [ h2 [] [ text "Wild Pokemon" ]
-  , ul [] (map_pkmn_list model.pkmnList)
+  , ul [] (map_pkmn_list model.pkmnList partial_get_remaning)
   , add_pkmn_button model.addPkmn
   ]
 
-map_pkmn_list : List PKMN -> List (Html.Html Msg)
-map_pkmn_list pkmns = 
-  List.map pkmn_to_li pkmns
+map_pkmn_list : List PKMN -> (PKMN -> List (Stat, Int)) -> List (Html.Html Msg)
+map_pkmn_list pkmns calc_remaining = 
+  List.map (pkmn_to_li calc_remaining) pkmns 
 
-pkmn_to_li : PKMN -> Html.Html Msg
-pkmn_to_li pkmn = 
+pkmn_to_li : (PKMN -> List (Stat, Int)) -> PKMN -> Html.Html Msg
+pkmn_to_li calc_remaining pkmn = 
   let
     name = Maybe.withDefault "" pkmn.name
     yield = "+" ++ String.fromInt pkmn.yield ++ " " ++ stat_to_str pkmn.stat
     count = "killed " ++ String.fromInt pkmn.count
+    left = p_remaining_evs <| calc_remaining pkmn
   in
   li [onClick (KilledPkmn pkmn.id)] 
-  [ p [] [text yield]
+  ([ p [] [text yield]
   , p [] [text name]
   , p [] [text count]
-  ]
+  ] 
+  ++ left)
+
+p_remaining_evs : List (Stat, Int) -> List (Html.Html Msg)
+p_remaining_evs remainings = 
+  List.map (\r-> p [] [text (fmt_remaining_ev r)]) remainings
+
+fmt_remaining_ev : (Stat, Int) -> String
+fmt_remaining_ev (stat, left) =
+  (String.fromInt left) ++ " remaining [" ++ (stat_to_str stat) ++ "]"
+
+get_remaining : Model -> PKMN -> List (Stat, Int)
+get_remaining model pkmn = 
+  -- store all of the possible yields (replace with Dict.fromList once pkmn yield evs is a list)
+  let
+    get_stat_remaining = calculate_remaining <| abs_diff_statsets model.earnedEvs model.targetEvs
+    stat_comp = stat_comparable pkmn.stat
+    yielded = Dict.singleton stat_comp pkmn.yield
+      |> (add_ev_item_yield model.item)
+      |> Dict.toList
+      |> List.map (\(s, y) -> (comparable_to_stat s, y))
+  in
+    yielded
+    |> List.map get_stat_remaining
+
+
+add_ev_item_yield : Maybe Stat -> Dict Int Int -> Dict Int Int
+add_ev_item_yield held dict =
+  let
+    held_comp = Maybe.map stat_comparable held
+  in
+  case held_comp of
+    Just item -> 
+      Dict.update item ((inc_ev_yield 8)) dict
+    Nothing ->
+      dict
+
+inc_ev_yield : Int -> Maybe Int -> Maybe Int
+inc_ev_yield itemYield prior =
+  case prior of
+    Just val -> Just (val + itemYield)
+    Nothing -> Just itemYield 
 
 
 -- View => Add New Pokemon --
@@ -336,15 +384,6 @@ display_stat_evs earned target stat =
     ] []
   ]
 
-get_stat_value : StatSet -> Stat -> Int
-get_stat_value set stat =
-  case stat of 
-    HP -> set.hp
-    Att -> set.att
-    Def -> set.def
-    SpA -> set.spa
-    SpD -> set.spd
-    Spe -> set.spe
 
 -- View => Held Item Selector --
 held_item_selector =
@@ -363,6 +402,7 @@ held_item_list =
     "Special Defense - Power Band",
     "Speed - Power Anklet"
     ]
+
 
 -- Utils
 item_str_to_stat s =
@@ -400,6 +440,27 @@ str_to_stat str =
 all_stat_list : List Stat
 all_stat_list = [ HP, Att, Def, SpA, SpD, Spe ]
 
+stat_comparable : Stat -> Int
+stat_comparable stat =
+  case stat of
+    HP -> 0
+    Att -> 1
+    Def -> 2
+    SpA -> 3
+    SpD -> 4
+    Spe -> 5
+
+comparable_to_stat : Int -> Stat
+comparable_to_stat stat_comp =
+  case stat_comp of
+    0 -> HP
+    1 -> Att
+    2 -> Def
+    3 -> SpA
+    4 -> SpD
+    5 -> Spe
+    _ -> HP -- this should never happen
+
 -- Utils => StatSet --
 zero_statset : StatSet
 zero_statset = 
@@ -418,6 +479,36 @@ set_setstat_val set stat val =
     SpA -> { set | spa = val }
     SpD -> { set | spd = val }
     Spe -> { set | spe = val }
+
+get_stat_value : StatSet -> Stat -> Int
+get_stat_value set stat =
+  case stat of 
+    HP -> set.hp
+    Att -> set.att
+    Def -> set.def
+    SpA -> set.spa
+    SpD -> set.spd
+    Spe -> set.spe
+
+abs_diff_statsets : StatSet -> StatSet -> StatSet
+abs_diff_statsets a b =
+  StatSet 
+    (abs (a.hp - b.hp))
+    (abs (a.att - b.att))
+    (abs (a.def - b.def))
+    (abs (a.spa - b.spa))
+    (abs (a.spd - b.spd))
+    (abs (a.spe - b.spe))
+
+-- Calculate the number of KOs needed to inc `earned` to `target`
+calculate_remaining : StatSet -> (Stat, Int) -> (Stat, Int)
+calculate_remaining evsLeft (stat, yield) = 
+  get_stat_value evsLeft stat
+  |> toFloat
+  |> (/) (toFloat yield)
+  |> (/) 1
+  |> ceiling
+  |> (Tuple.pair stat)
 
 -- ==> Clamp EV delta `n` to that max value that StatSet `set` can add
 max_possible_ev : StatSet -> Int -> Int
