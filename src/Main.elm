@@ -6,7 +6,6 @@ import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
 -- TODOs
---  * PokeRus
 --  * EV Berries
 --  * New Type for Pokemon Uid
 --  * Support more than one type of EV yield per pokemon
@@ -18,6 +17,7 @@ main =
 -- Model --
 type alias Model = 
   { item : Maybe Stat
+  , pokerus : Bool
   , targetEvs : StatSet
   , earnedEvs : StatSet
   , addPkmn : Maybe NewPkmn
@@ -57,11 +57,12 @@ type PkmnStatus
 
 init : Model
 init = 
-  Model Nothing zero_statset zero_statset Nothing 0 []
+  Model Nothing False zero_statset zero_statset Nothing 0 []
 
 -- Update --
 type Msg
   = ChangeItem String
+  | TogglePokerus String
   | SetEvTarget Stat String
   | ResetEarnedEvs
   | ResetTargetEvs
@@ -79,9 +80,11 @@ type NewPkmnMsg
 
 update : Msg -> Model -> Model
 update msg model = 
-  case msg of
+  case (Debug.log "msg" msg) of
     ChangeItem item ->
       { model | item = (item_str_to_stat item) }
+    TogglePokerus _ ->
+      { model | pokerus = not model.pokerus }
     SetEvTarget stat val ->
       { model | targetEvs = (update_target_ev model.targetEvs stat val) }
     ResetEarnedEvs ->
@@ -113,16 +116,16 @@ reset_all_kos pkmns =
 add_new_ko : Model -> Int -> Model
 add_new_ko model id =
   let
-    add_koes_with_item = add_koed_evs model.item
+    add_koes_with_model = add_koed_evs model
 
-    newEarned = model.pkmnList
+    updatedEarned = model.pkmnList
       |> List.filter (\p -> p.id == id)
-      |> List.foldl add_koes_with_item model.earnedEvs
+      |> List.foldl add_koes_with_model model.earnedEvs
 
     updatedPkmnList = model.pkmnList
       |> List.map (add_pkmn_ko_count id)
   in
-  {model | pkmnList = updatedPkmnList, earnedEvs = newEarned}
+  {model | pkmnList = updatedPkmnList, earnedEvs = updatedEarned}
 
 add_pkmn_ko_count : Int -> PKMN -> PKMN
 add_pkmn_ko_count id pkmn =
@@ -131,16 +134,21 @@ add_pkmn_ko_count id pkmn =
   else 
     pkmn
 
-add_koed_evs : Maybe Stat -> PKMN -> StatSet -> StatSet
-add_koed_evs heldItemStat pkmn evs =
+add_koed_evs : Model -> PKMN -> StatSet -> StatSet
+add_koed_evs model pkmn acc =
   let
-    heldYield = heldItemStat
+    heldYield = model.item
       |> Maybe.map (\stat -> (stat, 8))
-    statList = case heldYield of
-      Just held -> [held, (pkmn.stat, pkmn.yield)]
-      Nothing -> [(pkmn.stat, pkmn.yield)]
+    
+    pokerusMutl = if model.pokerus then 2 else 1
+    
+    statList = (case heldYield of
+        Just held -> [held, (pkmn.stat, pkmn.yield)]
+        Nothing -> [(pkmn.stat, pkmn.yield)]
+      )
+      |> List.map (\(s, y) -> (s, y * pokerusMutl))
   in
-    List.foldl add_val_to_statset evs statList
+    List.foldl add_val_to_statset acc statList
 
 add_val_to_statset : (Stat, Int) -> StatSet -> StatSet 
 add_val_to_statset (stat, n) set =
@@ -223,12 +231,17 @@ update_target_ev set stat textval =
   in
     set_val clampedVal
 
+
+----------
 -- View --
 view : Model -> Html.Html Msg
 view model = 
   div []
     [ ev_status model
+    , h2 [] [text "Options"]
     , held_item_selector
+    , pokerus_toggle model
+    , h2 [] [ text "Wild Pokemon" ]
     , wild_pkmn model
     ]
 
@@ -239,8 +252,7 @@ wild_pkmn model =
     partial_get_remaning = get_remaining model
   in
   div [A.id "WildPkmn"] 
-  [ h2 [] [ text "Wild Pokemon" ]
-  , ul [] (map_pkmn_list model.pkmnList partial_get_remaning)
+  [ ul [] (map_pkmn_list model.pkmnList partial_get_remaning)
   , add_pkmn_button model.addPkmn
   ]
 
@@ -276,12 +288,16 @@ get_remaining : Model -> PKMN -> List (Stat, Int)
 get_remaining model pkmn = 
   -- store all of the possible yields (replace with Dict.fromList once pkmn yield evs is a list)
   let
-    get_stat_remaining = calculate_remaining <| abs_diff_statsets model.earnedEvs model.targetEvs
+    get_stat_remaining = abs_diff_statsets model.earnedEvs model.targetEvs
+      |> calculate_remaining
+    
+    pokerusMult = if model.pokerus then 2 else 1
+
     stat_comp = stat_comparable pkmn.stat
     yielded = Dict.singleton stat_comp pkmn.yield
       |> (add_ev_item_yield model.item)
       |> Dict.toList
-      |> List.map (\(s, y) -> (comparable_to_stat s, y))
+      |> List.map (\(s, y) -> (comparable_to_stat s, y * pokerusMult))
   in
     yielded
     |> List.map get_stat_remaining
@@ -408,12 +424,23 @@ display_stat_evs earned target stat =
     ] []
   ]
 
+-- View => Pokerus Toggle
+pokerus_toggle : Model -> Html.Html Msg
+pokerus_toggle model = 
+  div [ A.id "Pokerus" ]
+  [ input [A.type_ "checkbox", A.id "PokerusCheck"] []
+  , label 
+    [A.for "PokerusCheck"
+    , A.checked model.pokerus
+    , onClick <| TogglePokerus ""
+    ] [text "Pokerus"]
+  ]
 
 -- View => Held Item Selector --
 held_item_selector =
   div [ A.id "ItemSelector" ] 
-  [ h2 [] [ text "Power Item" ]
-  , select [ onInput ChangeItem ] held_item_list
+  [ label [A.for "ItemInput"] [ text "Power Item: " ]
+  , select [ A.id "ItemInput", onInput ChangeItem ] held_item_list
   ]
 
 held_item_list = 
