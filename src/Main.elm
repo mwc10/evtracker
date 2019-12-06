@@ -5,6 +5,12 @@ import Html exposing (div, select, option, text, p, label, h2, input, button, fo
 import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
+-- TODOs
+--  * PokeRus
+--  * EV Berries
+--  * New Type for Pokemon Uid
+--  * Support more than one type of EV yield per pokemon
+
 -- Main --
 main =
   Browser.sandbox { init = init, update = update, view = view }
@@ -64,6 +70,7 @@ type Msg
   | CancelAddingNewPkmn
   | AddNewPkmnToList
   | KilledPkmn Int
+  | RemovePkmn Int
 
 type NewPkmnMsg
   = NewPkmnName String
@@ -91,6 +98,13 @@ update msg model =
       add_new_pkmn model
     KilledPkmn id -> 
       add_new_ko model id
+    RemovePkmn id ->
+      {model | pkmnList = remove_pkmn model.pkmnList id}
+
+
+remove_pkmn : List PKMN -> Int -> List PKMN
+remove_pkmn list id =
+  List.filter (\p -> p.id /= id) list
 
 reset_all_kos : List PKMN -> List PKMN
 reset_all_kos pkmns =
@@ -242,10 +256,11 @@ pkmn_to_li calc_remaining pkmn =
     count = "KOed " ++ String.fromInt pkmn.count
     left = p_remaining_evs <| calc_remaining pkmn
   in
-  li [onClick (KilledPkmn pkmn.id)] 
+  li [onClick <| KilledPkmn pkmn.id] 
   ([ p [] [text yield]
   , p [] [text name]
   , p [] [text count]
+  , button [onClick <| RemovePkmn pkmn.id] [text "X"] 
   ] 
   ++ left)
 
