@@ -141,13 +141,18 @@ add_new_pkmn : Model -> Model
 add_new_pkmn model =
   let
     uid = model.uid + 1
+    make_new_list pkmn = 
+      model.pkmnList
+        |> List.foldl (::) []
+        |> (::) (newpkmn_to_pkmn pkmn uid)
+        |> List.foldl (::) []
   in
   case model.addPkmn of
     Just pkmn ->
       { model 
       | addPkmn = Nothing
       , uid = uid
-      , pkmnList = (newpkmn_to_pkmn pkmn uid) :: model.pkmnList 
+      , pkmnList = make_new_list pkmn 
       }
     Nothing -> model
 
@@ -223,7 +228,7 @@ wild_pkmn model =
 
 map_pkmn_list : List PKMN -> (PKMN -> List (Stat, Int)) -> List (Html.Html Msg)
 map_pkmn_list pkmns calc_remaining = 
-  List.map (pkmn_to_li calc_remaining) pkmns 
+  List.map (pkmn_to_li calc_remaining) pkmns
 
 pkmn_to_li : (PKMN -> List (Stat, Int)) -> PKMN -> Html.Html Msg
 pkmn_to_li calc_remaining pkmn = 
