@@ -79,7 +79,7 @@ type NewPkmnMsg
 
 update : Msg -> Model -> Model
 update msg model = 
-  case (Debug.log "msg" msg) of
+  case msg of
     ChangeItem item ->
       { model | item = (item_str_to_stat item) }
     TogglePokerus _ ->
