@@ -6,7 +6,6 @@ import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
 -- TODOs
---  * New Type for Pokemon Uid
 --  * Support more than one type of EV yield per pokemon
 
 -- Main --
