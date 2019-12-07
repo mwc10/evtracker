@@ -1,12 +1,12 @@
 module Main exposing (..)
 import Browser
 import Dict exposing (Dict)
-import Html exposing (div, select, option, text, p, label, h2, input, button, form, li, ul)
+import Html exposing (div, select, option, text, p, label, h1, h2, input, button, form, li, ul)
 import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
 -- TODOs
---  * EV Berries
+--  * Class Name Result for Earn <=> Target
 --  * New Type for Pokemon Uid
 --  * Support more than one type of EV yield per pokemon
 
@@ -64,6 +64,7 @@ type Msg
   = ChangeItem String
   | TogglePokerus String
   | SetEvTarget Stat String
+  | EvBerry Stat
   | ResetEarnedEvs
   | ResetTargetEvs
   | StartAddingNewPkmn
@@ -87,6 +88,8 @@ update msg model =
       { model | pokerus = not model.pokerus }
     SetEvTarget stat val ->
       { model | targetEvs = (update_target_ev model.targetEvs stat val) }
+    EvBerry stat ->
+      { model | earnedEvs = apply_ev_berry model stat }
     ResetEarnedEvs ->
       { model | earnedEvs = zero_statset, pkmnList = reset_all_kos model.pkmnList }
     ResetTargetEvs ->
@@ -104,6 +107,15 @@ update msg model =
     RemovePkmn id ->
       {model | pkmnList = remove_pkmn model.pkmnList id}
 
+
+apply_ev_berry : Model -> Stat -> StatSet
+apply_ev_berry model stat =
+  let
+    oldEv = get_stat_value model.earnedEvs stat
+    newEv = if oldEv > 100 then 100 else oldEv - 10
+      |> clamp_ev
+  in
+  set_setstat_val model.earnedEvs stat newEv
 
 remove_pkmn : List PKMN -> Int -> List PKMN
 remove_pkmn list id =
@@ -212,7 +224,7 @@ update_newpkmn_yield : String -> NewPkmn -> NewPkmn
 update_newpkmn_yield yieldstr pkmn =
   let 
     yield = String.toInt yieldstr
-      |> Maybe.map clamp_ev_yield
+      |> Maybe.map clamp_pkmn_ev_yield
       |> Maybe.withDefault 1
   in
   { pkmn | yield = yield }
@@ -237,7 +249,8 @@ update_target_ev set stat textval =
 view : Model -> Html.Html Msg
 view model = 
   div []
-    [ ev_status model
+    [ h1 [] [text "Sw/Sh EV Tracker"]
+    , ev_status model
     , h2 [] [text "Options"]
     , held_item_selector
     , pokerus_toggle model
@@ -288,7 +301,7 @@ get_remaining : Model -> PKMN -> List (Stat, Int)
 get_remaining model pkmn = 
   -- store all of the possible yields (replace with Dict.fromList once pkmn yield evs is a list)
   let
-    get_stat_remaining = abs_diff_statsets model.earnedEvs model.targetEvs
+    get_stat_remaining = diff_target_earned model.targetEvs model.earnedEvs
       |> calculate_remaining
     
     pokerusMult = if model.pokerus then 2 else 1
@@ -301,6 +314,7 @@ get_remaining model pkmn =
   in
     yielded
     |> List.map get_stat_remaining
+    |> List.filterMap identity
 
 
 add_ev_item_yield : Maybe Stat -> Dict Int Int -> Dict Int Int
@@ -386,7 +400,7 @@ ev_selector id cur =
 -- View => Current EV Status --
 ev_status model =
   div [A.id "EVs"] 
-  (h2 [] [text "Target EV Spread"] 
+  (h2 [] [text "EV Spread"] 
   :: reset_evs
   ++ (ev_table model.earnedEvs model.targetEvs)
   )
@@ -408,20 +422,22 @@ ev_table earned target =
 display_stat_evs : StatSet -> StatSet -> Stat -> Html.Html Msg
 display_stat_evs earned target stat = 
   let 
-    earned_val_as_str val = String.fromInt (get_stat_value earned val)
-    target_val_as_str val = String.fromInt (get_stat_value target val)
-    stat_name = stat_to_str stat
-    stat_input = stat_name ++ "Input"
+    earnedValStr = String.fromInt (get_stat_value earned stat)
+    targetValStr = String.fromInt (get_stat_value target stat)
+    statName = stat_to_str stat
+    statInputId = statName ++ "Input"
+    labelStr = statName ++ ": " ++ earnedValStr ++ " of "
   in
-  div [ A.id stat_name ] 
-  [ label [A.for stat_input] [text (stat_name ++ ":")]
-  , div [] [text (earned_val_as_str stat ++ " of ")]
+  div [ A.id statName ] 
+  [ label [A.for statInputId] [text labelStr]
   , input 
     [ A.type_ "number"
-    , A.value (target_val_as_str stat)
-    , A.id stat_input
+    , A.value targetValStr
+    , A.id statInputId
     , onInput (SetEvTarget stat)
     ] []
+  , button [onClick <| EvBerry stat] [text "- EV Berry"]
+  , button [onClick <| SetEvTarget stat "252"] [text "Max"]
   ]
 
 -- View => Pokerus Toggle
@@ -541,25 +557,37 @@ get_stat_value set stat =
     SpD -> set.spd
     Spe -> set.spe
 
-abs_diff_statsets : StatSet -> StatSet -> StatSet
-abs_diff_statsets a b =
-  StatSet 
-    (abs (a.hp - b.hp))
-    (abs (a.att - b.att))
-    (abs (a.def - b.def))
-    (abs (a.spa - b.spa))
-    (abs (a.spd - b.spd))
-    (abs (a.spe - b.spe))
+iter_statset : StatSet -> List (Stat, Int)
+iter_statset set =
+  all_stat_list
+  |> List.map (\stat -> (stat, get_stat_value set stat))
+
+-- Map between stat and evs left to reach target. 
+-- The dict only includes stats that were set by the user (non-zero model.targetEvs)
+type alias LeftStatDict = Dict Int Int
+
+diff_target_earned : StatSet -> StatSet -> LeftStatDict
+diff_target_earned target earned =
+  iter_statset target
+  |> List.filter (\(_, y) -> y /= 0)
+  |> List.map (\(s, y) -> (s, y - (get_stat_value earned s)))
+  |> List.map (\(s, y) -> (stat_comparable s, y))
+  |> Dict.fromList
 
 -- Calculate the number of KOs needed to inc `earned` to `target`
-calculate_remaining : StatSet -> (Stat, Int) -> (Stat, Int)
-calculate_remaining evsLeft (stat, yield) = 
-  get_stat_value evsLeft stat
-  |> toFloat
-  |> (/) (toFloat yield)
-  |> (/) 1
-  |> ceiling
-  |> (Tuple.pair stat)
+calculate_remaining : LeftStatDict -> (Stat, Int) -> Maybe (Stat, Int)
+calculate_remaining evsLeft (stat, yield) =
+  let
+    statComp = stat_comparable stat
+    number_remaining evs = 
+      toFloat evs
+      |> (/) (toFloat yield)
+      |> (/) 1
+      |> ceiling
+      |> (Tuple.pair stat)
+  in
+  Dict.get statComp evsLeft
+  |> Maybe.map number_remaining
 
 -- ==> Clamp EV delta `n` to that max value that StatSet `set` can add
 max_possible_ev : StatSet -> Int -> Int
@@ -569,7 +597,7 @@ max_possible_ev set n =
 str_to_option_elem str = 
   option [] [text str]
 
-clamp_ev_yield = clamp 1 3
+clamp_pkmn_ev_yield = clamp 1 3
 
 clamp_ev val = 
   clamp 0 252 val
