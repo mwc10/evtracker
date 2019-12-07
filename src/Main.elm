@@ -6,7 +6,6 @@ import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
 -- TODOs
---  * Class Name Result for Earn <=> Target
 --  * New Type for Pokemon Uid
 --  * Support more than one type of EV yield per pokemon
 
@@ -422,13 +421,16 @@ ev_table earned target =
 display_stat_evs : StatSet -> StatSet -> Stat -> Html.Html Msg
 display_stat_evs earned target stat = 
   let 
-    earnedValStr = String.fromInt (get_stat_value earned stat)
-    targetValStr = String.fromInt (get_stat_value target stat)
+    earnedVal = get_stat_value earned stat
+    earnedValStr = String.fromInt earnedVal
+    targetVal = get_stat_value target stat
+    targetValStr = String.fromInt targetVal
+    statusClass = ev_status_class earnedVal targetVal
     statName = stat_to_str stat
     statInputId = statName ++ "Input"
     labelStr = statName ++ ": " ++ earnedValStr ++ " of "
   in
-  div [ A.id statName ] 
+  div [ A.id statName, A.class statusClass ] 
   [ label [A.for statInputId] [text labelStr]
   , input 
     [ A.type_ "number"
@@ -439,6 +441,16 @@ display_stat_evs earned target stat =
   , button [onClick <| EvBerry stat] [text "- EV Berry"]
   , button [onClick <| SetEvTarget stat "252"] [text "Max"]
   ]
+
+ev_status_class : Int -> Int -> String
+ev_status_class earned target = 
+  if target == 0 then
+    "zeroed"
+  else
+    case compare earned target of
+      LT -> "not-reached"
+      EQ -> "meet"
+      GT -> "issue"
 
 -- View => Pokerus Toggle
 pokerus_toggle : Model -> Html.Html Msg
