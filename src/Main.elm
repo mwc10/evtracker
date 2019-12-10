@@ -246,7 +246,7 @@ update_target_ev set stat textval =
 -- View --
 view : Model -> Html.Html Msg
 view model = 
-  div []
+  div [A.id "Tracker"]
     [ h1 [] [text "Sw/Sh EV Tracker"]
     , ev_status model
     , h2 [] [text "Options"]
@@ -398,24 +398,21 @@ ev_selector id cur =
 -- View => Current EV Status --
 ev_status model =
   div [A.id "EVs"] 
-  (h2 [] [text "EV Spread"] 
-  :: reset_evs
-  ++ (ev_table model.earnedEvs model.targetEvs)
-  )
-
-reset_evs : List (Html.Html Msg)
-reset_evs = 
-  [ button [onClick ResetEarnedEvs] [text "Reset Earned EVs"]
-  , button [onClick ResetTargetEvs] [text "Reset Target EVs"]
+  [h2 [] [text "EV Spread"]
+  , ev_table model.earnedEvs model.targetEvs
+  , button [onClick ResetEarnedEvs, A.class "neg-button"] [text "Reset Earned EVs"]
+  , button [onClick ResetTargetEvs, A.class "neg-button"] [text "Reset Target EVs"]
   ]
 
-ev_table : StatSet -> StatSet -> List (Html.Html Msg)
+
+ev_table : StatSet -> StatSet -> Html.Html Msg
 ev_table earned target = 
   let 
     create_stat_cell = display_stat_evs earned target
+    tableElems = all_stat_list
+      |> List.map create_stat_cell
   in
-  all_stat_list
-  |> List.map create_stat_cell
+  div [A.id "EvTable"] tableElems
 
 display_stat_evs : StatSet -> StatSet -> Stat -> Html.Html Msg
 display_stat_evs earned target stat = 
@@ -427,18 +424,19 @@ display_stat_evs earned target stat =
     statusClass = ev_status_class earnedVal targetVal
     statName = stat_to_str stat
     statInputId = statName ++ "Input"
-    labelStr = statName ++ ": " ++ earnedValStr ++ " of "
+    labelStr = earnedValStr ++ " of "
   in
-  div [ A.id statName, A.class statusClass ] 
-  [ label [A.for statInputId] [text labelStr]
+  div [ A.id statName, A.class "ev-grid", A.class statusClass] 
+  [ label [A.for statInputId, A.class "ev-row-header"] [text statName]
+  , label [A.for statInputId] [text labelStr]
   , input 
     [ A.type_ "number"
     , A.value targetValStr
     , A.id statInputId
     , onInput (SetEvTarget stat)
     ] []
-  , button [onClick <| EvBerry stat] [text "- EV Berry"]
-  , button [onClick <| SetEvTarget stat "252"] [text "Max"]
+  , button [onClick <| EvBerry stat, A.class "neg-button"] [text "- EV Berry"]
+  , button [onClick <| SetEvTarget stat "252", A.class "pos-button"] [text "Max"]
   ]
 
 ev_status_class : Int -> Int -> String
