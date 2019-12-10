@@ -16,6 +16,8 @@ jobs:
         uses: JorelAli/setup-elm@v1
         with:
           elm-version: 0.19.1
+      - name: Basic Testing
+        run: echo $(PWD) && ls
       - name: Compile Elm Files
         run: make
         working-directory: /
