@@ -16,8 +16,6 @@ jobs:
         uses: JorelAli/setup-elm@v1
         with:
           elm-version: 0.19.1
-      - name: Basic Testing
-        run: ls
       - name: Compile Elm Files
         run: make optimized
       - name: GitHub Pages Deploy
