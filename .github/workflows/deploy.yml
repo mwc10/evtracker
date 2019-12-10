@@ -15,8 +15,9 @@ jobs:
       uses: JorelAli/setup-elm@v1
       with:
         elm-version: 0.19.1
-    - name: Compile Elm
+    - name: Compile Elm Files
       run: make
+      working-directory: /
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v1.2.5
       with:
