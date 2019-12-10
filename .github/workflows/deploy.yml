@@ -17,10 +17,9 @@ jobs:
         with:
           elm-version: 0.19.1
       - name: Basic Testing
-        run: echo $(PWD) && ls
+        run: ls
       - name: Compile Elm Files
-        run: make
-        working-directory: /
+        run: make optimized
       - name: GitHub Pages
         uses: crazy-max/ghaction-github-pages@v1.2.5
         with:
