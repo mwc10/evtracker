@@ -18,7 +18,7 @@ jobs:
     - name: Compile Elm
       run: make
     - name: GitHub Pages
-    - uses: crazy-max/ghaction-github-pages@v1.2.5
+      uses: crazy-max/ghaction-github-pages@v1.2.5
       with:
         # Build directory to deploy
         build_dir: dist/
