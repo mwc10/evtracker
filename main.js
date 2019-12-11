@@ -5784,7 +5784,6 @@ var $author$project$Main$ev_table = F2(
 				]),
 			tableElems);
 	});
-var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $author$project$Main$ev_status = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5794,13 +5793,6 @@ var $author$project$Main$ev_status = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2(
-				$elm$html$Html$h2,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('EV Spread')
-					])),
 				A2($author$project$Main$ev_table, model.n, model.L),
 				A2(
 				$elm$html$Html$button,
@@ -5829,6 +5821,7 @@ var $author$project$Main$ev_status = function (model) {
 			]));
 };
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $author$project$Main$ChangeItem = function (a) {
 	return {$: 0, a: a};
 };
@@ -5847,34 +5840,6 @@ var $author$project$Main$held_item_list = A2(
 	$author$project$Main$str_to_option_elem,
 	_List_fromArray(
 		['None', 'HP - Power Weight', 'Attack - Power Bracer', 'Defense - Power Belt', 'Special Attack - Power Lens', 'Special Defense - Power Band', 'Speed - Power Anklet']));
-var $elm$html$Html$select = _VirtualDom_node('select');
-var $author$project$Main$held_item_selector = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			$elm$html$Html$Attributes$id('ItemSelector')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$label,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$for('ItemInput')
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('Power Item: ')
-				])),
-			A2(
-			$elm$html$Html$select,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$id('ItemInput'),
-					$elm$html$Html$Events$onInput($author$project$Main$ChangeItem)
-				]),
-			$author$project$Main$held_item_list)
-		]));
 var $author$project$Main$TogglePokerus = function (a) {
 	return {$: 1, a: a};
 };
@@ -5917,6 +5882,37 @@ var $author$project$Main$pokerus_toggle = function (model) {
 					[
 						$elm$html$Html$text('Pokerus')
 					]))
+			]));
+};
+var $elm$html$Html$select = _VirtualDom_node('select');
+var $author$project$Main$options_div = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id('Options')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$label,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$for('ItemInput')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Power Item: ')
+					])),
+				A2(
+				$elm$html$Html$select,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('ItemInput'),
+						$elm$html$Html$Events$onInput($author$project$Main$ChangeItem)
+					]),
+				$author$project$Main$held_item_list),
+				$author$project$Main$pokerus_toggle(model)
 			]));
 };
 var $author$project$Main$StartAddingNewPkmn = {$: 6};
@@ -6962,22 +6958,33 @@ var $author$project$Main$view = function (model) {
 					])),
 				$author$project$Main$ev_status(model),
 				A2(
-				$elm$html$Html$h2,
-				_List_Nil,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Options')
-					])),
-				$author$project$Main$held_item_selector,
-				$author$project$Main$pokerus_toggle(model),
-				A2(
-				$elm$html$Html$h2,
-				_List_Nil,
+						$elm$html$Html$Attributes$id('Counter')
+					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Wild Pokemon')
-					])),
-				$author$project$Main$wild_pkmn(model)
+						A2(
+						$elm$html$Html$h2,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$id('WildPkmnHdr')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Wild Pokemon')
+							])),
+						$author$project$Main$wild_pkmn(model),
+						A2(
+						$elm$html$Html$h2,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Options')
+							])),
+						$author$project$Main$options_div(model)
+					]))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
