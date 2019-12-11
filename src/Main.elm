@@ -250,10 +250,10 @@ view model =
     [ h1 [] [ text "Sw/Sh EV Tracker" ]
     , ev_status model
     , div [ A.id "Counter" ]
-      [ h2 [] [ text "Options" ]
-      , options_div model
-      , h2 [] [ text "Wild Pokemon" ]
+      [ h2 [A.id "WildPkmnHdr"] [ text "Wild Pokemon" ]
       , wild_pkmn model
+      , h2 [] [ text "Options" ]
+      , options_div model
       ]
     ]
 
@@ -429,8 +429,7 @@ ev_selector id cur =
 -- View => Current EV Status --
 ev_status model =
   div [A.id "EVs"] 
-  [h2 [] [text "EV Spread"]
-  , ev_table model.earnedEvs model.targetEvs
+  [ ev_table model.earnedEvs model.targetEvs
   , button 
     [ onClick ResetEarnedEvs
     , A.class "neg-button"
