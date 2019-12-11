@@ -1,7 +1,7 @@
 module Main exposing (..)
 import Browser
 import Dict exposing (Dict)
-import Html exposing (div, select, option, text, p, label, h1, h2, input, button, form, li, ul)
+import Html exposing (div, select, option, text, p, span, label, h1, h2, input, button, form, li, ul)
 import Html.Events exposing (onInput, onClick, onSubmit)
 import Html.Attributes as A
 
@@ -277,19 +277,30 @@ pkmn_to_li calc_remaining pkmn =
     name = Maybe.withDefault "" pkmn.name
     yield = "+" ++ String.fromInt pkmn.yield ++ " " ++ stat_to_str pkmn.stat
     count = "KOed " ++ String.fromInt pkmn.count
-    left = p_remaining_evs <| calc_remaining pkmn
+    koLeft = p_remaining_evs <| calc_remaining pkmn
+    class = pkmn_li_class pkmn
   in
-  li [onClick <| KilledPkmn pkmn.id] 
-  ([ p [] [text yield]
-  , p [] [text name]
-  , p [] [text count]
-  , button [onClick <| RemovePkmn pkmn.id] [text "X"] 
-  ] 
-  ++ left)
+  li [onClick <| KilledPkmn pkmn.id, A.class class] 
+    [ button 
+      [ onClick <| RemovePkmn pkmn.id
+      , A.class "pkmn-x"
+      , A.class "neg-button"
+      ] [text "X"] 
+    , p [A.class "pkmn-name"] [text name]
+    , p [A.class "pkmn-yield"] [text yield]
+    , p [A.class "pkmn-kos"] [text count]
+    , koLeft
+    , p [A.class "plus-text"] [text "+"]
+    ] 
+    
+pkmn_li_class : PKMN -> String 
+pkmn_li_class pkmn = 
+  String.toLower <| stat_to_str pkmn.stat 
 
-p_remaining_evs : List (Stat, Int) -> List (Html.Html Msg)
+p_remaining_evs : List (Stat, Int) -> Html.Html Msg
 p_remaining_evs remainings = 
-  List.map (\r-> p [] [text (fmt_remaining_ev r)]) remainings
+  div [A.class "pkmn-left"]
+    (List.map (\r-> p [] [text (fmt_remaining_ev r)]) remainings)
 
 fmt_remaining_ev : (Stat, Int) -> String
 fmt_remaining_ev (stat, left) =
@@ -337,10 +348,15 @@ inc_ev_yield itemYield prior =
 add_pkmn_button : Maybe NewPkmn -> Html.Html Msg
 add_pkmn_button pkmn =
   let 
+    addNewButton = button 
+      [onClick StartAddingNewPkmn
+      , A.class "pos-button"
+      , A.class "big"
+      ] [text "+ New Pokemon"]
     addModal = 
       pkmn
       |> Maybe.map add_pkmn_popup
-      |> Maybe.withDefault (button [onClick StartAddingNewPkmn] [text "+ Pokemon"])
+      |> Maybe.withDefault addNewButton
   in
   div [A.id "AddNewPkmn"] [addModal]
 
@@ -351,21 +367,35 @@ add_pkmn_popup pkmn =
     stat = stat_to_str pkmn.stat
     yield = String.fromInt pkmn.yield
   in
-  div []
-  [ label [A.for "NewPkmnName"] [text "Name: "]
-  , input 
-    [A.id "NewPkmnName"
-    , A.type_ "text"
-    , A.placeholder "Optional"
-    , A.value name
-    , onInput (\s -> NewPkmnUpdate (NewPkmnName s)) 
-    ] []
-  , label [A.for "NewPkmnStat"] [text "Stat: "]
-  , stat_selector "NewPkmnStat" stat
-  , label [A.for "NewPkmnYield"] [text "EV Yield: "]
-  , ev_selector "NewPkmnYield" yield
-  , button [onClick CancelAddingNewPkmn] [text "Cancel"]
-  , button [onClick AddNewPkmnToList] [text "Add"]
+  div [A.id "AddPkmnPopup"]
+  [ div [A.class "two-span"] 
+    [ label [A.for "NewPkmnName"] [text "Name: "] 
+    , input 
+        [A.id "NewPkmnName"
+        , A.type_ "text"
+        , A.placeholder "Optional"
+        , A.value name
+        , onInput (\s -> NewPkmnUpdate (NewPkmnName s)) 
+        ] []
+    ]
+  , div [A.class "one-span"]
+    [ label [A.for "NewPkmnStat"] [text "Stat: "]
+    , stat_selector "NewPkmnStat" stat
+    ]
+  , div [A.class "one-span"]
+    [ label [A.for "NewPkmnYield"] [text "EV Yield: "]
+    , ev_selector "NewPkmnYield" yield
+    ]
+  , button 
+    [ onClick CancelAddingNewPkmn
+    , A.class "neg-button"
+    , A.class "big"
+    ] [text "Cancel"]
+  , button 
+    [ onClick AddNewPkmnToList
+    , A.class "pos-button"
+    , A.class "big"
+    ] [text "Add"]
   ]
 
 stat_selector : String -> String -> Html.Html Msg
@@ -400,8 +430,16 @@ ev_status model =
   div [A.id "EVs"] 
   [h2 [] [text "EV Spread"]
   , ev_table model.earnedEvs model.targetEvs
-  , button [onClick ResetEarnedEvs, A.class "neg-button"] [text "Reset Earned EVs"]
-  , button [onClick ResetTargetEvs, A.class "neg-button"] [text "Reset Target EVs"]
+  , button 
+    [ onClick ResetEarnedEvs
+    , A.class "neg-button"
+    , A.class "big"
+    ] [text "Reset Earned EVs"]
+  , button 
+    [ onClick ResetTargetEvs
+    , A.class "neg-button"
+    , A.class "big"
+    ] [text "Reset Target EVs"]
   ]
 
 

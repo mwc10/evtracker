@@ -20,8 +20,8 @@ div#Tracker {
 }
 
 h1, h2 {
-    text-shadow: 2px 2px 3px rgba(191,179,120,0.9);
     color: #F2C12E;
+    text-shadow: 2px 2px 3px rgba(128, 124, 109, 0.9);
     font-family: 'Montserrat', sans-serif;
     font-weight: bold;
     margin: 0.375rem;
@@ -56,7 +56,7 @@ label {
 	font-style:normal;
 	text-decoration:none;
 	text-align:center;
-	text-shadow:1px 1px 0px #fcbcb8;
+    text-shadow:1px 1px 0px #fcbcb8;
 }
 .neg-button:hover {
 	background: linear-gradient( to top, #f79891 5%, #d9867e 100% );
@@ -79,10 +79,10 @@ label {
 	font-style:normal;
 	text-decoration:none;
 	text-align:center;
-	text-shadow:1px 1px 0px rgb(129, 177, 240);
+	text-shadow: 1px 1px 0px rgb(75, 82, 91);
 }
 .pos-button:hover {
-	background: linear-gradient( to top, rgb(97, 160, 243) 5%, #30588C 100% );;
+	background: linear-gradient( to top, rgb(97, 160, 243) 5%, #30588C 100% );
     background-color: rgb(92, 152, 230);
 } 
 
@@ -91,12 +91,13 @@ button:active {
 	top: 1px;
 }
 
-/* EV Spread Table */
-#EVs>button.neg-button {
+button.big {
     font-size: 1rem;
     height: 2rem;
 	min-width: 5rem;
 }
+
+/* EV Spread Table */
 
 #EvTable {
     display: grid;
@@ -107,6 +108,7 @@ button:active {
 
 div.ev-grid {
     padding: 0.125rem;
+    transition: background-color 0.5s;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     row-gap: 0.25rem;
@@ -149,4 +151,169 @@ div.ev-grid > label {
     align-self: center;
     font-size: 1.5rem;
     text-align: center;
+}
+
+/* Add New Pokemon */
+
+#AddPkmnPopup {
+    display: grid;
+    background-color: #D9CB84;
+    border: 1px solid #F2C12E ;
+    border-radius: 0.25rem;
+    box-shadow: 0px 2px 10px #BFB378;
+    padding: 1rem;
+    max-width: 35rem;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 0.25rem;
+    column-gap: 0.4rem;
+    align-items: center;
+    grid-template-areas: 
+        "hd      hd"
+        "stat    ev"
+        "cancel  accept";
+}
+
+#AddPkmnPopup > .two-span {
+    grid-area: hd;
+    display: flex;
+    align-items: baseline;
+}
+
+#AddPkmnPopup > .two-span > input {
+    flex: 2;
+    margin: 0.25rem 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    border-radius: 5px;
+}
+
+#AddPkmnPopup > .one-span {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-around;
+}
+
+#AddPkmnPopup > .one-span > select {
+    margin: 0.25rem 0.5rem;
+    font-size: 1rem;
+    flex: 2;
+}
+
+/* Pokemon List */
+
+#WildPkmn > ul {
+    list-style: none inside;
+    padding: 0;
+    margin: 1rem 0.25rem;
+}
+
+#WildPkmn > ul > li {
+    border: 0.125rem solid #444;
+    border-radius: 0.25rem;
+    box-shadow: 1px 1px 3px #555;
+    padding: 0.5rem 0.25rem;
+    margin: 0.25rem 0rem;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 2rem 1fr 1fr 1fr;
+    grid-template-areas: 
+        "x name  left plus"
+        "x yield left plus"
+        "x kos   left plus";
+    justify-items: center;
+    transition: all ease-in 0.125s;
+} 
+
+#WildPkmn > ul > li:active {
+    position: relative;
+    top: 1px;
+    left: 2px;
+}
+
+li p {
+    margin: 0.125rem 0;
+}
+
+.pkmn-x {
+    grid-area: x;
+    align-self: flex-start;
+    justify-self: left;
+}
+
+.pkmn-name {
+    grid-area: name;
+}
+
+.pkmn-yield {
+    grid-area: yield;
+    font-weight: bold;
+}
+
+.pkmn-kos {
+    grid-area: kos;
+}
+
+.pkmn-left {
+    grid-area: left;
+}
+
+.plus-text {
+    grid-area: plus;
+    font-size: 4rem;
+    align-self: stretch;
+    justify-self: right;
+    line-height: 3rem;
+    overflow: hidden;
+}
+
+li:hover .plus-text, li:active .plus-text {
+    color: white;
+}
+
+li.hp {
+    background-color: #F0ADAD;
+}
+
+li.hp:hover {
+    background-color: rgb(241, 134, 134);
+}
+
+li.att {
+    background-color: rgb(228, 173, 135);
+}
+
+li.att:hover {
+    background-color: #F08030;
+}
+
+li.def {
+    background-color: rgb(255, 238, 169);
+}
+
+li.def:hover {
+    background-color: #F8D030;
+}
+
+li.spa {
+    background-color: rgb(190, 209, 255);
+}
+
+li.spa:hover {
+    background-color: #6890F0;
+}
+
+li.spd {
+    background-color: rgb(200, 231, 184);
+}
+
+li.spd:hover {
+    background-color: #78C850;
+}
+
+li.spe {
+    background-color: rgb(255, 176, 200);
+}
+
+li.spe:hover {
+    background-color: #F85888;
 }

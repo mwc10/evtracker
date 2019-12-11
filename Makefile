@@ -1,4 +1,4 @@
-ELM_SOURCES := src/*.elm
+ELM_SOURCES := $(wildcard src/*.elm)
 DIST_DIR := dist/
 ELM_BUNDLE := $(addprefix $(DIST_DIR), main.js)
 OPT ?= --optimize
