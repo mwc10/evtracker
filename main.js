@@ -4393,7 +4393,7 @@ var $elm$core$Basics$LT = 0;
 var $elm$core$Basics$False = 1;
 var $author$project$Main$Model = F7(
 	function (item, pokerus, targetEvs, earnedEvs, addPkmn, uid, pkmnList) {
-		return {r: addPkmn, m: earnedEvs, U: item, j: pkmnList, G: pokerus, L: targetEvs, aa: uid};
+		return {r: addPkmn, n: earnedEvs, U: item, j: pkmnList, G: pokerus, L: targetEvs, aa: uid};
 	});
 var $elm$core$Maybe$Nothing = {$: 1};
 var $author$project$Main$StatSet = F6(
@@ -5127,7 +5127,7 @@ var $elm$browser$Browser$sandbox = function (impl) {
 var $author$project$Main$HP = 0;
 var $author$project$Main$NewPkmn = F3(
 	function (name, stat, _yield) {
-		return {F: name, o: stat, q: _yield};
+		return {F: name, m: stat, q: _yield};
 	});
 var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
@@ -5229,12 +5229,12 @@ var $author$project$Main$add_koed_evs = F3(
 					return _List_fromArray(
 						[
 							held,
-							_Utils_Tuple2(pkmn.o, pkmn.q)
+							_Utils_Tuple2(pkmn.m, pkmn.q)
 						]);
 				} else {
 					return _List_fromArray(
 						[
-							_Utils_Tuple2(pkmn.o, pkmn.q)
+							_Utils_Tuple2(pkmn.m, pkmn.q)
 						]);
 				}
 			}());
@@ -5267,7 +5267,7 @@ var $author$project$Main$add_new_ko = F2(
 		var updatedEarned = A3(
 			$elm$core$List$foldl,
 			add_koes_with_model,
-			model.m,
+			model.n,
 			A2(
 				$elm$core$List$filter,
 				function (p) {
@@ -5276,16 +5276,16 @@ var $author$project$Main$add_new_ko = F2(
 				model.j));
 		return _Utils_update(
 			model,
-			{m: updatedEarned, j: updatedPkmnList});
+			{n: updatedEarned, j: updatedPkmnList});
 	});
 var $author$project$Main$PKMN = F6(
 	function (id, _yield, name, stat, count, status) {
-		return {O: count, E: id, F: name, o: stat, aQ: status, q: _yield};
+		return {O: count, E: id, F: name, m: stat, aQ: status, q: _yield};
 	});
 var $author$project$Main$SetPkmn = 0;
 var $author$project$Main$newpkmn_to_pkmn = F2(
 	function (_new, id) {
-		return A6($author$project$Main$PKMN, id, _new.q, _new.F, _new.o, 0, 0);
+		return A6($author$project$Main$PKMN, id, _new.q, _new.F, _new.m, 0, 0);
 	});
 var $author$project$Main$add_new_pkmn = function (model) {
 	var uid = model.aa + 1;
@@ -5361,9 +5361,9 @@ var $author$project$Main$set_setstat_val = F3(
 	});
 var $author$project$Main$apply_ev_berry = F2(
 	function (model, stat) {
-		var oldEv = A2($author$project$Main$get_stat_value, model.m, stat);
+		var oldEv = A2($author$project$Main$get_stat_value, model.n, stat);
 		var newEv = (oldEv > 100) ? 100 : $author$project$Main$clamp_ev(oldEv - 10);
-		return A3($author$project$Main$set_setstat_val, model.m, stat, newEv);
+		return A3($author$project$Main$set_setstat_val, model.n, stat, newEv);
 	});
 var $author$project$Main$Att = 1;
 var $author$project$Main$Def = 2;
@@ -5454,7 +5454,7 @@ var $author$project$Main$update_newpkmn_stat = F2(
 			$author$project$Main$str_to_stat(statstr));
 		return _Utils_update(
 			pkmn,
-			{o: stat});
+			{m: stat});
 	});
 var $author$project$Main$clamp_pkmn_ev_yield = A2($elm$core$Basics$clamp, 1, 3);
 var $author$project$Main$update_newpkmn_yield = F2(
@@ -5536,13 +5536,13 @@ var $author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{
-						m: A2($author$project$Main$apply_ev_berry, model, stat)
+						n: A2($author$project$Main$apply_ev_berry, model, stat)
 					});
 			case 4:
 				return _Utils_update(
 					model,
 					{
-						m: $author$project$Main$zero_statset,
+						n: $author$project$Main$zero_statset,
 						j: $author$project$Main$reset_all_kos(model.j)
 					});
 			case 5:
@@ -5801,13 +5801,14 @@ var $author$project$Main$ev_status = function (model) {
 					[
 						$elm$html$Html$text('EV Spread')
 					])),
-				A2($author$project$Main$ev_table, model.m, model.L),
+				A2($author$project$Main$ev_table, model.n, model.L),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
 						$elm$html$Html$Events$onClick($author$project$Main$ResetEarnedEvs),
-						$elm$html$Html$Attributes$class('neg-button')
+						$elm$html$Html$Attributes$class('neg-button'),
+						$elm$html$Html$Attributes$class('big')
 					]),
 				_List_fromArray(
 					[
@@ -5818,7 +5819,8 @@ var $author$project$Main$ev_status = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Events$onClick($author$project$Main$ResetTargetEvs),
-						$elm$html$Html$Attributes$class('neg-button')
+						$elm$html$Html$Attributes$class('neg-button'),
+						$elm$html$Html$Attributes$class('big')
 					]),
 				_List_fromArray(
 					[
@@ -5979,65 +5981,97 @@ var $author$project$Main$stat_selector = F2(
 	});
 var $author$project$Main$add_pkmn_popup = function (pkmn) {
 	var _yield = $elm$core$String$fromInt(pkmn.q);
-	var stat = $author$project$Main$stat_to_str(pkmn.o);
+	var stat = $author$project$Main$stat_to_str(pkmn.m);
 	var name = A2($elm$core$Maybe$withDefault, '', pkmn.F);
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id('AddPkmnPopup')
+			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$label,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$for('NewPkmnName')
+						$elm$html$Html$Attributes$class('two-span')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Name: ')
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('NewPkmnName')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Name: ')
+							])),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$id('NewPkmnName'),
+								$elm$html$Html$Attributes$type_('text'),
+								$elm$html$Html$Attributes$placeholder('Optional'),
+								$elm$html$Html$Attributes$value(name),
+								$elm$html$Html$Events$onInput(
+								function (s) {
+									return $author$project$Main$NewPkmnUpdate(
+										$author$project$Main$NewPkmnName(s));
+								})
+							]),
+						_List_Nil)
 					])),
 				A2(
-				$elm$html$Html$input,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$id('NewPkmnName'),
-						$elm$html$Html$Attributes$type_('text'),
-						$elm$html$Html$Attributes$placeholder('Optional'),
-						$elm$html$Html$Attributes$value(name),
-						$elm$html$Html$Events$onInput(
-						function (s) {
-							return $author$project$Main$NewPkmnUpdate(
-								$author$project$Main$NewPkmnName(s));
-						})
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$for('NewPkmnStat')
+						$elm$html$Html$Attributes$class('one-span')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Stat: ')
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('NewPkmnStat')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Stat: ')
+							])),
+						A2($author$project$Main$stat_selector, 'NewPkmnStat', stat)
 					])),
-				A2($author$project$Main$stat_selector, 'NewPkmnStat', stat),
 				A2(
-				$elm$html$Html$label,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$for('NewPkmnYield')
+						$elm$html$Html$Attributes$class('one-span')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('EV Yield: ')
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$for('NewPkmnYield')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('EV Yield: ')
+							])),
+						A2($author$project$Main$ev_selector, 'NewPkmnYield', _yield)
 					])),
-				A2($author$project$Main$ev_selector, 'NewPkmnYield', _yield),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Main$CancelAddingNewPkmn)
+						$elm$html$Html$Events$onClick($author$project$Main$CancelAddingNewPkmn),
+						$elm$html$Html$Attributes$class('neg-button'),
+						$elm$html$Html$Attributes$class('big')
 					]),
 				_List_fromArray(
 					[
@@ -6047,7 +6081,9 @@ var $author$project$Main$add_pkmn_popup = function (pkmn) {
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Events$onClick($author$project$Main$AddNewPkmnToList)
+						$elm$html$Html$Events$onClick($author$project$Main$AddNewPkmnToList),
+						$elm$html$Html$Attributes$class('pos-button'),
+						$elm$html$Html$Attributes$class('big')
 					]),
 				_List_fromArray(
 					[
@@ -6056,18 +6092,21 @@ var $author$project$Main$add_pkmn_popup = function (pkmn) {
 			]));
 };
 var $author$project$Main$add_pkmn_button = function (pkmn) {
+	var addNewButton = A2(
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Events$onClick($author$project$Main$StartAddingNewPkmn),
+				$elm$html$Html$Attributes$class('pos-button'),
+				$elm$html$Html$Attributes$class('big')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('+ New Pokemon')
+			]));
 	var addModal = A2(
 		$elm$core$Maybe$withDefault,
-		A2(
-			$elm$html$Html$button,
-			_List_fromArray(
-				[
-					$elm$html$Html$Events$onClick($author$project$Main$StartAddingNewPkmn)
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('+ Pokemon')
-				])),
+		addNewButton,
 		A2($elm$core$Maybe$map, $author$project$Main$add_pkmn_popup, pkmn));
 	return A2(
 		$elm$html$Html$div,
@@ -6744,7 +6783,7 @@ var $elm$core$Dict$singleton = F2(
 	});
 var $author$project$Main$get_remaining = F2(
 	function (model, pkmn) {
-		var stat_comp = $author$project$Main$stat_comparable(pkmn.o);
+		var stat_comp = $author$project$Main$stat_comparable(pkmn.m);
 		var pokerusMult = model.G ? 2 : 1;
 		var yielded = A2(
 			$elm$core$List$map,
@@ -6761,7 +6800,7 @@ var $author$project$Main$get_remaining = F2(
 					model.U,
 					A2($elm$core$Dict$singleton, stat_comp, pkmn.q))));
 		var get_stat_remaining = $author$project$Main$calculate_remaining(
-			A2($author$project$Main$diff_target_earned, model.L, model.m));
+			A2($author$project$Main$diff_target_earned, model.L, model.n));
 		return A2(
 			$elm$core$List$filterMap,
 			$elm$core$Basics$identity,
@@ -6782,70 +6821,103 @@ var $author$project$Main$fmt_remaining_ev = function (_v0) {
 };
 var $author$project$Main$p_remaining_evs = function (remainings) {
 	return A2(
-		$elm$core$List$map,
-		function (r) {
-			return A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						$author$project$Main$fmt_remaining_ev(r))
-					]));
-		},
-		remainings);
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('pkmn-left')
+			]),
+		A2(
+			$elm$core$List$map,
+			function (r) {
+				return A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							$author$project$Main$fmt_remaining_ev(r))
+						]));
+			},
+			remainings));
+};
+var $elm$core$String$toLower = _String_toLower;
+var $author$project$Main$pkmn_li_class = function (pkmn) {
+	return $elm$core$String$toLower(
+		$author$project$Main$stat_to_str(pkmn.m));
 };
 var $author$project$Main$pkmn_to_li = F2(
 	function (calc_remaining, pkmn) {
-		var _yield = '+' + ($elm$core$String$fromInt(pkmn.q) + (' ' + $author$project$Main$stat_to_str(pkmn.o)));
+		var _yield = '+' + ($elm$core$String$fromInt(pkmn.q) + (' ' + $author$project$Main$stat_to_str(pkmn.m)));
 		var name = A2($elm$core$Maybe$withDefault, '', pkmn.F);
-		var left = $author$project$Main$p_remaining_evs(
+		var koLeft = $author$project$Main$p_remaining_evs(
 			calc_remaining(pkmn));
 		var count = 'KOed ' + $elm$core$String$fromInt(pkmn.O);
+		var _class = $author$project$Main$pkmn_li_class(pkmn);
 		return A2(
 			$elm$html$Html$li,
 			_List_fromArray(
 				[
 					$elm$html$Html$Events$onClick(
-					$author$project$Main$KilledPkmn(pkmn.E))
+					$author$project$Main$KilledPkmn(pkmn.E)),
+					$elm$html$Html$Attributes$class(_class)
 				]),
-			_Utils_ap(
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(_yield)
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(name)
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(count)
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick(
-								$author$project$Main$RemovePkmn(pkmn.E))
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('X')
-							]))
-					]),
-				left));
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$RemovePkmn(pkmn.E)),
+							$elm$html$Html$Attributes$class('pkmn-x'),
+							$elm$html$Html$Attributes$class('neg-button')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('X')
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('pkmn-name')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(name)
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('pkmn-yield')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(_yield)
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('pkmn-kos')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(count)
+						])),
+					koLeft,
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('plus-text')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('+')
+						]))
+				]));
 	});
 var $author$project$Main$map_pkmn_list = F2(
 	function (pkmns, calc_remaining) {
