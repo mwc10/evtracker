@@ -246,14 +246,15 @@ update_target_ev set stat textval =
 -- View --
 view : Model -> Html.Html Msg
 view model = 
-  div [A.id "Tracker"]
-    [ h1 [] [text "Sw/Sh EV Tracker"]
+  div [ A.id "Tracker" ]
+    [ h1 [] [ text "Sw/Sh EV Tracker" ]
     , ev_status model
-    , h2 [] [text "Options"]
-    , held_item_selector
-    , pokerus_toggle model
-    , h2 [] [ text "Wild Pokemon" ]
-    , wild_pkmn model
+    , div [ A.id "Counter" ]
+      [ h2 [] [ text "Options" ]
+      , options_div model
+      , h2 [] [ text "Wild Pokemon" ]
+      , wild_pkmn model
+      ]
     ]
 
 -- View => Wild Pokemon List --
@@ -487,7 +488,15 @@ ev_status_class earned target =
       EQ -> "meet"
       GT -> "issue"
 
--- View => Pokerus Toggle
+-- View => Options
+options_div : Model -> Html.Html Msg
+options_div model = 
+   div [A.id "Options"]
+    [ label [A.for "ItemInput"] [ text "Power Item: " ]
+    , select [ A.id "ItemInput", onInput ChangeItem ] held_item_list
+    , pokerus_toggle model
+    ]
+
 pokerus_toggle : Model -> Html.Html Msg
 pokerus_toggle model = 
   div [ A.id "Pokerus" ]
@@ -499,22 +508,15 @@ pokerus_toggle model =
     ] [text "Pokerus"]
   ]
 
--- View => Held Item Selector --
-held_item_selector =
-  div [ A.id "ItemSelector" ] 
-  [ label [A.for "ItemInput"] [ text "Power Item: " ]
-  , select [ A.id "ItemInput", onInput ChangeItem ] held_item_list
-  ]
-
 held_item_list = 
-  List.map str_to_option_elem [ 
-    "None", 
-    "HP - Power Weight", 
-    "Attack - Power Bracer", 
-    "Defense - Power Belt",
-    "Special Attack - Power Lens",
-    "Special Defense - Power Band",
-    "Speed - Power Anklet"
+  List.map str_to_option_elem 
+    [ "None"
+    , "HP - Power Weight"
+    , "Attack - Power Bracer"
+    , "Defense - Power Belt"
+    , "Special Attack - Power Lens"
+    , "Special Defense - Power Band"
+    , "Speed - Power Anklet"
     ]
 
 
