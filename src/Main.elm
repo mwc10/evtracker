@@ -1,8 +1,8 @@
 module Main exposing (..)
 import Browser
 import Dict exposing (Dict)
-import Html exposing (div, select, option, text, p, span, label, h1, h2, input, button, form, li, ul)
-import Html.Events exposing (onInput, onClick, onSubmit)
+import Html exposing (div, select, option, text, p, label, h1, h2, input, button, li, ul)
+import Html.Events exposing (onInput, onClick)
 import Html.Attributes as A
 
 -- TODOs
@@ -42,7 +42,7 @@ type alias PKMN =
   , count : Int
   , status : PkmnStatus
   }
--- TODO: model multiple stat ev yield pokmeon (up to three stats)
+
 type alias NewPkmn =
   { name : Maybe String
   , stat : Stat
@@ -82,11 +82,11 @@ update : Msg -> Model -> Model
 update msg model = 
   case msg of
     ChangeItem item ->
-      { model | item = (item_str_to_stat item) }
+      { model | item = item_str_to_stat item }
     TogglePokerus _ ->
       { model | pokerus = not model.pokerus }
     SetEvTarget stat val ->
-      { model | targetEvs = (update_target_ev model.targetEvs stat val) }
+      { model | targetEvs = update_target_ev model.targetEvs stat val }
     EvBerry stat ->
       { model | earnedEvs = apply_ev_berry model stat }
     Vitamin stat ->
@@ -219,7 +219,7 @@ update_new_pkmn msg pkmn =
       Maybe.map (update_newpkmn_yield yieldstr) pkmn 
 
 update_newpkmn_name : String -> NewPkmn -> NewPkmn 
-update_newpkmn_name name pkmn = { pkmn | name = (Just name)}
+update_newpkmn_name name pkmn = { pkmn | name = Just name}
 
 update_newpkmn_stat : String -> NewPkmn -> NewPkmn 
 update_newpkmn_stat statstr pkmn = 
@@ -246,7 +246,6 @@ update_target_ev set stat textval =
     val = String.toInt textval
       |> Maybe.map clamp_ev
       |> Maybe.withDefault 0
-    maxNewSet = set_val val
     minOldSet =  set_val 0
     maxPossible =  510 - sum_evs_statset minOldSet
     clampedVal = min val maxPossible
@@ -317,7 +316,7 @@ p_remaining_evs remainings =
 
 fmt_remaining_ev : (Stat, Int) -> String
 fmt_remaining_ev (stat, left) =
-  (String.fromInt left) ++ " remaining [" ++ (stat_to_str stat) ++ "]"
+  String.fromInt left ++ " remaining [" ++ stat_to_str stat ++ "]"
 
 get_remaining : Model -> PKMN -> List (Stat, Int)
 get_remaining model pkmn = 
@@ -330,7 +329,7 @@ get_remaining model pkmn =
 
     stat_comp = stat_comparable pkmn.stat
     yielded = Dict.singleton stat_comp pkmn.yield
-      |> (add_ev_item_yield model.item)
+      |> add_ev_item_yield model.item
       |> Dict.toList
       |> List.map (\(s, y) -> (comparable_to_stat s, y * pokerusMult))
   in
@@ -419,6 +418,7 @@ stat_selector id current =
     , onInput (\s -> NewPkmnUpdate (NewPkmnStat s))
     ] stat_options
 
+stat_options : List (Html.Html a)
 stat_options =
   all_stat_list
   |> List.map stat_to_str
@@ -439,6 +439,7 @@ ev_selector id cur =
   
 
 -- View => Current EV Status --
+ev_status : Model -> Html.Html Msg
 ev_status model =
   div [A.id "EVs"] 
   [ ev_table model.earnedEvs model.targetEvs
@@ -489,7 +490,8 @@ display_stat_evs earned target stat =
     , button [onClick <| SetEvTarget stat "252", A.class "pos-button"] [text "Max"]
     ]
   , button [onClick <| EvBerry stat, A.class "neg-button"] [text "- EV Berry"]
-  , button [onClick <| Vitamin stat, A.class "pos-button"] [text "+ Vitamin"] -- TODO: dynamic vitamin name
+    -- Enhancement: dynamic vitamin name
+  , button [onClick <| Vitamin stat, A.class "pos-button"] [text "+ Vitamin"]
   ]
 
 ev_status_class : Int -> Int -> String
@@ -522,6 +524,7 @@ pokerus_toggle model =
     ] [text "Pokerus"]
   ]
 
+held_item_list : List (Html.Html a)
 held_item_list = 
   List.map str_to_option_elem 
     [ "None"
@@ -535,6 +538,7 @@ held_item_list =
 
 
 -- Utils
+item_str_to_stat : String -> Maybe Stat
 item_str_to_stat s =
   case s of
     "None" -> Nothing
@@ -633,7 +637,7 @@ diff_target_earned : StatSet -> StatSet -> LeftStatDict
 diff_target_earned target earned =
   iter_statset target
   |> List.filter (\(_, y) -> y /= 0)
-  |> List.map (\(s, y) -> (s, y - (get_stat_value earned s)))
+  |> List.map (\(s, y) -> (s, y - get_stat_value earned s))
   |> List.map (\(s, y) -> (stat_comparable s, y))
   |> Dict.fromList
 
@@ -647,7 +651,7 @@ calculate_remaining evsLeft (stat, yield) =
       |> (/) (toFloat yield)
       |> (/) 1
       |> ceiling
-      |> (Tuple.pair stat)
+      |> Tuple.pair stat
   in
   Dict.get statComp evsLeft
   |> Maybe.map number_remaining
@@ -655,12 +659,15 @@ calculate_remaining evsLeft (stat, yield) =
 -- ==> Clamp EV delta `n` to that max value that StatSet `set` can add
 max_possible_ev : StatSet -> Int -> Int
 max_possible_ev set n =
-  min n <| max 0 (510 - (sum_evs_statset set)) 
+  min n <| max 0 (510 - sum_evs_statset set) 
 
+str_to_option_elem : String -> Html.Html a
 str_to_option_elem str = 
   option [] [text str]
 
+clamp_pkmn_ev_yield : Int -> Int
 clamp_pkmn_ev_yield = clamp 1 3
 
+clamp_ev : Int -> Int
 clamp_ev val = 
   clamp 0 252 val
