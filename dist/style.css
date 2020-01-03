@@ -61,21 +61,21 @@ label {
     cursor: pointer;
     margin: 0.125rem 0.25rem;
     box-shadow:inset 0px 1px 0px 0px #ff9b94;
-	background: linear-gradient( to bottom, #f79891 5%, #d9867e 100% );
+    background: linear-gradient( to bottom, #f79891 5%, #d9867e 100% );
     background-color:#f79891;
     border-radius: 0.4rem;
-	text-indent:0;
-	border:1px solid #a16762;
-	display:inline-block;
-	color:#77332f;
-	font-weight:bold;
-	font-style:normal;
-	text-decoration:none;
-	text-align:center;
+    text-indent:0;
+    border:1px solid #a16762;
+    display:inline-block;
+    color:#77332f;
+    font-weight:bold;
+    font-style:normal;
+    text-decoration:none;
+    text-align:center;
     text-shadow:1px 1px 0px #fcbcb8;
 }
 .neg-button:hover {
-	background: linear-gradient( to top, #f79891 5%, #d9867e 100% );
+    background: linear-gradient( to top, #f79891 5%, #d9867e 100% );
     background-color: #d9867e;
 
 }
@@ -84,33 +84,33 @@ label {
     cursor: pointer;
     margin: 0.125rem 0.25rem;
     box-shadow: inset 0px 1px 0px 0px rgb(138, 189, 255);
-	background: linear-gradient( to bottom, rgb(97, 160, 243) 5%, #30588C 100% );
+    background: linear-gradient( to bottom, rgb(97, 160, 243) 5%, #30588C 100% );
     background-color: rgb(92, 152, 230);
     border-radius: 0.4rem;
-	text-indent: 0;
-	border: 1px solid rgb(33, 59, 94);
-	display: inline-block;
-	color: #fff;
-	font-weight:bold;
-	font-style:normal;
-	text-decoration:none;
-	text-align:center;
-	text-shadow: 1px 1px 0px rgb(75, 82, 91);
+    text-indent: 0;
+    border: 1px solid rgb(33, 59, 94);
+    display: inline-block;
+    color: #fff;
+    font-weight:bold;
+    font-style:normal;
+    text-decoration:none;
+    text-align:center;
+    text-shadow: 1px 1px 0px rgb(75, 82, 91);
 }
 .pos-button:hover {
-	background: linear-gradient( to top, rgb(97, 160, 243) 5%, #30588C 100% );
+    background: linear-gradient( to top, rgb(97, 160, 243) 5%, #30588C 100% );
     background-color: rgb(92, 152, 230);
 } 
 
 button:active {
-	position: relative;
-	top: 1px;
+    position: relative;
+    top: 1px;
 }
 
 button.big {
     font-size: 1rem;
     height: 2rem;
-	min-width: 5rem;
+    min-width: 5rem;
 }
 
 /* EV Spread Table */
