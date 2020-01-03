@@ -4393,7 +4393,7 @@ var $elm$core$Basics$LT = 0;
 var $elm$core$Basics$False = 1;
 var $author$project$Main$Model = F7(
 	function (item, pokerus, targetEvs, earnedEvs, addPkmn, uid, pkmnList) {
-		return {r: addPkmn, n: earnedEvs, U: item, j: pkmnList, G: pokerus, L: targetEvs, aa: uid};
+		return {r: addPkmn, g: earnedEvs, U: item, k: pkmnList, G: pokerus, L: targetEvs, aa: uid};
 	});
 var $elm$core$Maybe$Nothing = {$: 1};
 var $author$project$Main$StatSet = F6(
@@ -5127,7 +5127,7 @@ var $elm$browser$Browser$sandbox = function (impl) {
 var $author$project$Main$HP = 0;
 var $author$project$Main$NewPkmn = F3(
 	function (name, stat, _yield) {
-		return {F: name, m: stat, q: _yield};
+		return {F: name, n: stat, q: _yield};
 	});
 var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
@@ -5229,12 +5229,12 @@ var $author$project$Main$add_koed_evs = F3(
 					return _List_fromArray(
 						[
 							held,
-							_Utils_Tuple2(pkmn.m, pkmn.q)
+							_Utils_Tuple2(pkmn.n, pkmn.q)
 						]);
 				} else {
 					return _List_fromArray(
 						[
-							_Utils_Tuple2(pkmn.m, pkmn.q)
+							_Utils_Tuple2(pkmn.n, pkmn.q)
 						]);
 				}
 			}());
@@ -5262,30 +5262,30 @@ var $author$project$Main$add_new_ko = F2(
 		var updatedPkmnList = A2(
 			$elm$core$List$map,
 			$author$project$Main$add_pkmn_ko_count(id),
-			model.j);
+			model.k);
 		var add_koes_with_model = $author$project$Main$add_koed_evs(model);
 		var updatedEarned = A3(
 			$elm$core$List$foldl,
 			add_koes_with_model,
-			model.n,
+			model.g,
 			A2(
 				$elm$core$List$filter,
 				function (p) {
 					return _Utils_eq(p.E, id);
 				},
-				model.j));
+				model.k));
 		return _Utils_update(
 			model,
-			{n: updatedEarned, j: updatedPkmnList});
+			{g: updatedEarned, k: updatedPkmnList});
 	});
 var $author$project$Main$PKMN = F6(
 	function (id, _yield, name, stat, count, status) {
-		return {O: count, E: id, F: name, m: stat, aQ: status, q: _yield};
+		return {O: count, E: id, F: name, n: stat, aQ: status, q: _yield};
 	});
 var $author$project$Main$SetPkmn = 0;
 var $author$project$Main$newpkmn_to_pkmn = F2(
 	function (_new, id) {
-		return A6($author$project$Main$PKMN, id, _new.q, _new.F, _new.m, 0, 0);
+		return A6($author$project$Main$PKMN, id, _new.q, _new.F, _new.n, 0, 0);
 	});
 var $author$project$Main$add_new_pkmn = function (model) {
 	var uid = model.aa + 1;
@@ -5297,7 +5297,7 @@ var $author$project$Main$add_new_pkmn = function (model) {
 			A2(
 				$elm$core$List$cons,
 				A2($author$project$Main$newpkmn_to_pkmn, pkmn, uid),
-				A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, model.j)));
+				A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, model.k)));
 	};
 	var _v0 = model.r;
 	if (!_v0.$) {
@@ -5306,7 +5306,7 @@ var $author$project$Main$add_new_pkmn = function (model) {
 			model,
 			{
 				r: $elm$core$Maybe$Nothing,
-				j: make_new_list(pkmn),
+				k: make_new_list(pkmn),
 				aa: uid
 			});
 	} else {
@@ -5361,9 +5361,15 @@ var $author$project$Main$set_setstat_val = F3(
 	});
 var $author$project$Main$apply_ev_berry = F2(
 	function (model, stat) {
-		var oldEv = A2($author$project$Main$get_stat_value, model.n, stat);
+		var oldEv = A2($author$project$Main$get_stat_value, model.g, stat);
 		var newEv = (oldEv > 100) ? 100 : $author$project$Main$clamp_ev(oldEv - 10);
-		return A3($author$project$Main$set_setstat_val, model.n, stat, newEv);
+		return A3($author$project$Main$set_setstat_val, model.g, stat, newEv);
+	});
+var $author$project$Main$apply_vitamin = F2(
+	function (model, stat) {
+		var _new = $author$project$Main$clamp_ev(
+			10 + A2($author$project$Main$get_stat_value, model.g, stat));
+		return A3($author$project$Main$set_setstat_val, model.g, stat, _new);
 	});
 var $author$project$Main$Att = 1;
 var $author$project$Main$Def = 2;
@@ -5454,7 +5460,7 @@ var $author$project$Main$update_newpkmn_stat = F2(
 			$author$project$Main$str_to_stat(statstr));
 		return _Utils_update(
 			pkmn,
-			{m: stat});
+			{n: stat});
 	});
 var $author$project$Main$clamp_pkmn_ev_yield = A2($elm$core$Basics$clamp, 1, 3);
 var $author$project$Main$update_newpkmn_yield = F2(
@@ -5505,7 +5511,6 @@ var $author$project$Main$update_target_ev = F3(
 		var set_val = A2($author$project$Main$set_setstat_val, set, stat);
 		var minOldSet = set_val(0);
 		var maxPossible = 510 - $author$project$Main$sum_evs_statset(minOldSet);
-		var maxNewSet = set_val(val);
 		var clampedVal = A2($elm$core$Basics$min, val, maxPossible);
 		return set_val(clampedVal);
 	});
@@ -5536,40 +5541,47 @@ var $author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{
-						n: A2($author$project$Main$apply_ev_berry, model, stat)
+						g: A2($author$project$Main$apply_ev_berry, model, stat)
 					});
 			case 4:
+				var stat = msg.a;
 				return _Utils_update(
 					model,
 					{
-						n: $author$project$Main$zero_statset,
-						j: $author$project$Main$reset_all_kos(model.j)
+						g: A2($author$project$Main$apply_vitamin, model, stat)
 					});
 			case 5:
 				return _Utils_update(
 					model,
-					{L: $author$project$Main$zero_statset});
+					{
+						g: $author$project$Main$zero_statset,
+						k: $author$project$Main$reset_all_kos(model.k)
+					});
 			case 6:
+				return _Utils_update(
+					model,
+					{L: $author$project$Main$zero_statset});
+			case 7:
 				return _Utils_update(
 					model,
 					{
 						r: $elm$core$Maybe$Just(
 							A3($author$project$Main$NewPkmn, $elm$core$Maybe$Nothing, 0, 1))
 					});
-			case 8:
+			case 9:
 				return _Utils_update(
 					model,
 					{r: $elm$core$Maybe$Nothing});
-			case 7:
+			case 8:
 				var newMsg = msg.a;
 				return _Utils_update(
 					model,
 					{
 						r: A2($author$project$Main$update_new_pkmn, newMsg, model.r)
 					});
-			case 9:
-				return $author$project$Main$add_new_pkmn(model);
 			case 10:
+				return $author$project$Main$add_new_pkmn(model);
+			case 11:
 				var id = msg.a;
 				return A2($author$project$Main$add_new_ko, model, id);
 			default:
@@ -5577,13 +5589,13 @@ var $author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{
-						j: A2($author$project$Main$remove_pkmn, model.j, id)
+						k: A2($author$project$Main$remove_pkmn, model.k, id)
 					});
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$Main$ResetEarnedEvs = {$: 4};
-var $author$project$Main$ResetTargetEvs = {$: 5};
+var $author$project$Main$ResetEarnedEvs = {$: 5};
+var $author$project$Main$ResetTargetEvs = {$: 6};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5603,6 +5615,9 @@ var $author$project$Main$SetEvTarget = F2(
 	function (a, b) {
 		return {$: 2, a: a, b: b};
 	});
+var $author$project$Main$Vitamin = function (a) {
+	return {$: 4, a: a};
+};
 var $elm$core$Basics$compare = _Utils_compare;
 var $author$project$Main$ev_status_class = F2(
 	function (earned, target) {
@@ -5726,26 +5741,35 @@ var $author$project$Main$display_stat_evs = F3(
 							$elm$html$Html$text(statName)
 						])),
 					A2(
-					$elm$html$Html$label,
+					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$for(statInputId)
+							$elm$html$Html$Attributes$class('ev-inputs')
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(labelStr)
+							A2(
+							$elm$html$Html$label,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$for(statInputId)
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(labelStr)
+								])),
+							A2(
+							$elm$html$Html$input,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$type_('number'),
+									$elm$html$Html$Attributes$value(targetValStr),
+									$elm$html$Html$Attributes$id(statInputId),
+									$elm$html$Html$Events$onInput(
+									$author$project$Main$SetEvTarget(stat))
+								]),
+							_List_Nil)
 						])),
-					A2(
-					$elm$html$Html$input,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$type_('number'),
-							$elm$html$Html$Attributes$value(targetValStr),
-							$elm$html$Html$Attributes$id(statInputId),
-							$elm$html$Html$Events$onInput(
-							$author$project$Main$SetEvTarget(stat))
-						]),
-					_List_Nil),
 					A2(
 					$elm$html$Html$button,
 					_List_fromArray(
@@ -5763,8 +5787,21 @@ var $author$project$Main$display_stat_evs = F3(
 					_List_fromArray(
 						[
 							$elm$html$Html$Events$onClick(
-							A2($author$project$Main$SetEvTarget, stat, '252')),
+							$author$project$Main$Vitamin(stat)),
 							$elm$html$Html$Attributes$class('pos-button')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('+ Vitamin')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick(
+							A2($author$project$Main$SetEvTarget, stat, '252')),
+							$elm$html$Html$Attributes$class('pos-button'),
+							$elm$html$Html$Attributes$class('max-ev')
 						]),
 					_List_fromArray(
 						[
@@ -5793,7 +5830,7 @@ var $author$project$Main$ev_status = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2($author$project$Main$ev_table, model.n, model.L),
+				A2($author$project$Main$ev_table, model.g, model.L),
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
@@ -5915,14 +5952,14 @@ var $author$project$Main$options_div = function (model) {
 				$author$project$Main$pokerus_toggle(model)
 			]));
 };
-var $author$project$Main$StartAddingNewPkmn = {$: 6};
-var $author$project$Main$AddNewPkmnToList = {$: 9};
-var $author$project$Main$CancelAddingNewPkmn = {$: 8};
+var $author$project$Main$StartAddingNewPkmn = {$: 7};
+var $author$project$Main$AddNewPkmnToList = {$: 10};
+var $author$project$Main$CancelAddingNewPkmn = {$: 9};
 var $author$project$Main$NewPkmnName = function (a) {
 	return {$: 0, a: a};
 };
 var $author$project$Main$NewPkmnUpdate = function (a) {
-	return {$: 7, a: a};
+	return {$: 8, a: a};
 };
 var $author$project$Main$NewPkmnYield = function (a) {
 	return {$: 2, a: a};
@@ -5977,7 +6014,7 @@ var $author$project$Main$stat_selector = F2(
 	});
 var $author$project$Main$add_pkmn_popup = function (pkmn) {
 	var _yield = $elm$core$String$fromInt(pkmn.q);
-	var stat = $author$project$Main$stat_to_str(pkmn.m);
+	var stat = $author$project$Main$stat_to_str(pkmn.n);
 	var name = A2($elm$core$Maybe$withDefault, '', pkmn.F);
 	return A2(
 		$elm$html$Html$div,
@@ -6779,7 +6816,7 @@ var $elm$core$Dict$singleton = F2(
 	});
 var $author$project$Main$get_remaining = F2(
 	function (model, pkmn) {
-		var stat_comp = $author$project$Main$stat_comparable(pkmn.m);
+		var stat_comp = $author$project$Main$stat_comparable(pkmn.n);
 		var pokerusMult = model.G ? 2 : 1;
 		var yielded = A2(
 			$elm$core$List$map,
@@ -6796,17 +6833,17 @@ var $author$project$Main$get_remaining = F2(
 					model.U,
 					A2($elm$core$Dict$singleton, stat_comp, pkmn.q))));
 		var get_stat_remaining = $author$project$Main$calculate_remaining(
-			A2($author$project$Main$diff_target_earned, model.L, model.n));
+			A2($author$project$Main$diff_target_earned, model.L, model.g));
 		return A2(
 			$elm$core$List$filterMap,
 			$elm$core$Basics$identity,
 			A2($elm$core$List$map, get_stat_remaining, yielded));
 	});
 var $author$project$Main$KilledPkmn = function (a) {
-	return {$: 10, a: a};
+	return {$: 11, a: a};
 };
 var $author$project$Main$RemovePkmn = function (a) {
-	return {$: 11, a: a};
+	return {$: 12, a: a};
 };
 var $elm$html$Html$li = _VirtualDom_node('li');
 var $elm$html$Html$p = _VirtualDom_node('p');
@@ -6839,11 +6876,11 @@ var $author$project$Main$p_remaining_evs = function (remainings) {
 var $elm$core$String$toLower = _String_toLower;
 var $author$project$Main$pkmn_li_class = function (pkmn) {
 	return $elm$core$String$toLower(
-		$author$project$Main$stat_to_str(pkmn.m));
+		$author$project$Main$stat_to_str(pkmn.n));
 };
 var $author$project$Main$pkmn_to_li = F2(
 	function (calc_remaining, pkmn) {
-		var _yield = '+' + ($elm$core$String$fromInt(pkmn.q) + (' ' + $author$project$Main$stat_to_str(pkmn.m)));
+		var _yield = '+' + ($elm$core$String$fromInt(pkmn.q) + (' ' + $author$project$Main$stat_to_str(pkmn.n)));
 		var name = A2($elm$core$Maybe$withDefault, '', pkmn.F);
 		var koLeft = $author$project$Main$p_remaining_evs(
 			calc_remaining(pkmn));
@@ -6936,7 +6973,7 @@ var $author$project$Main$wild_pkmn = function (model) {
 				A2(
 				$elm$html$Html$ul,
 				_List_Nil,
-				A2($author$project$Main$map_pkmn_list, model.j, partial_get_remaning)),
+				A2($author$project$Main$map_pkmn_list, model.k, partial_get_remaning)),
 				$author$project$Main$add_pkmn_button(model.r)
 			]));
 };
