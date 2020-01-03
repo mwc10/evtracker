@@ -9,6 +9,7 @@ import Html.Attributes as A
 --  * Support more than one type of EV yield per pokemon
 
 -- Main --
+main : Program () Model Msg
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
@@ -487,11 +488,11 @@ display_stat_evs earned target stat =
       , A.id statInputId
       , onInput (SetEvTarget stat)
       ] []
-    , button [onClick <| SetEvTarget stat "252", A.class "pos-button"] [text "Max"]
     ]
   , button [onClick <| EvBerry stat, A.class "neg-button"] [text "- EV Berry"]
     -- Enhancement: dynamic vitamin name
   , button [onClick <| Vitamin stat, A.class "pos-button"] [text "+ Vitamin"]
+  , button [onClick <| SetEvTarget stat "252", A.class "pos-button", A.class "max-ev"] [text "Max"]
   ]
 
 ev_status_class : Int -> Int -> String
