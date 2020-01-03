@@ -63,6 +63,7 @@ type Msg
   | TogglePokerus String
   | SetEvTarget Stat String
   | EvBerry Stat
+  | Vitamin Stat
   | ResetEarnedEvs
   | ResetTargetEvs
   | StartAddingNewPkmn
@@ -88,6 +89,8 @@ update msg model =
       { model | targetEvs = (update_target_ev model.targetEvs stat val) }
     EvBerry stat ->
       { model | earnedEvs = apply_ev_berry model stat }
+    Vitamin stat ->
+      { model | earnedEvs = apply_vitamin model stat }
     ResetEarnedEvs ->
       { model | earnedEvs = zero_statset, pkmnList = reset_all_kos model.pkmnList }
     ResetTargetEvs ->
@@ -105,6 +108,15 @@ update msg model =
     RemovePkmn id ->
       {model | pkmnList = remove_pkmn model.pkmnList id}
 
+
+apply_vitamin : Model -> Stat -> StatSet
+apply_vitamin model stat = 
+  let 
+    new = get_stat_value model.earnedEvs stat
+     |> (+) 10
+     |> clamp_ev
+  in
+  set_setstat_val model.earnedEvs stat new
 
 apply_ev_berry : Model -> Stat -> StatSet
 apply_ev_berry model stat =
@@ -466,15 +478,18 @@ display_stat_evs earned target stat =
   in
   div [ A.id statName, A.class "ev-grid", A.class statusClass] 
   [ label [A.for statInputId, A.class "ev-row-header"] [text statName]
-  , label [A.for statInputId] [text labelStr]
-  , input 
-    [ A.type_ "number"
-    , A.value targetValStr
-    , A.id statInputId
-    , onInput (SetEvTarget stat)
-    ] []
+  , div [ A.class "ev-inputs" ]
+    [ label [A.for statInputId] [text labelStr]
+    , input 
+      [ A.type_ "number"
+      , A.value targetValStr
+      , A.id statInputId
+      , onInput (SetEvTarget stat)
+      ] []
+    , button [onClick <| SetEvTarget stat "252", A.class "pos-button"] [text "Max"]
+    ]
   , button [onClick <| EvBerry stat, A.class "neg-button"] [text "- EV Berry"]
-  , button [onClick <| SetEvTarget stat "252", A.class "pos-button"] [text "Max"]
+  , button [onClick <| Vitamin stat, A.class "pos-button"] [text "+ Vitamin"] -- TODO: dynamic vitamin name
   ]
 
 ev_status_class : Int -> Int -> String
